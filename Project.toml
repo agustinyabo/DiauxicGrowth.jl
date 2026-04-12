@@ -1,7 +1,7 @@
 name = "DiauxicGrowth"
 uuid = "b82fc4fa-8f9b-4f7f-a83e-a6a8d5cca84c"
 authors = ["Ousmane-Junior Sane <ousmane-junior.sane@inrae.fr>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [compat]
 julia = "1.11"
