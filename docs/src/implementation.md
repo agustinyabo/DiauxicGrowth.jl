@@ -44,8 +44,8 @@ function diauxic_ocp(t₀, tf, I₀, Y₁, Y₂, Y₃)
     end 
     
     sol = solve(
-        ocp, :direct, :adnlp, :ipopt;
-        disc_method = :gauss_legendre_3,
+        ocp, :collocation, :adnlp, :ipopt;
+        scheme = :gauss_legendre_3,
         grid_size   = 1000,       
         tol         = 1e-8,
         display     = false
