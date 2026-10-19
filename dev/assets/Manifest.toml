@@ -540,7 +540,7 @@ version = "1.9.1"
 [[deps.DiauxicGrowth]]
 path = "/home/runner/work/DiauxicGrowth.jl/DiauxicGrowth.jl"
 uuid = "b82fc4fa-8f9b-4f7f-a83e-a6a8d5cca84c"
-version = "0.2.1"
+version = "0.2.2"
 
 [[deps.DiffEqBase]]
 deps = ["ArrayInterface", "BracketingNonlinearSolve", "ConcreteStructs", "DocStringExtensions", "FastBroadcast", "FastClosures", "FastPower", "FunctionWrappers", "FunctionWrappersWrappers", "LinearAlgebra", "Logging", "Markdown", "MuladdMacro", "PrecompileTools", "Printf", "RecursiveArrayTools", "Reexport", "SciMLBase", "SciMLLogging", "SciMLOperators", "SciMLStructures", "Setfield", "Static", "StaticArraysCore", "SymbolicIndexingInterface", "TruncatedStacktraces"]
