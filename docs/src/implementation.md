@@ -1,4 +1,6 @@
-# Implementation and Results
+# Implementation and results
+
+In this page, we solve numerically the optimal control problem presented in the [home page](index.md) for an environment with n = 3 substrates.
 
 ```@example diauxic
 using DifferentialEquations
@@ -9,6 +11,16 @@ using LaTeXStrings
 using Plots.PlotMeasures
 ```
 
+## Problem definition
+
+The rate functions are defined as Michaelis–Menten kinetics:
+
+```math
+w_i(s_i) = k \frac{s_i}{K_i + s_i}, \quad i = 1, 2, 3, \qquad w_R(m) = k \frac{m}{K_R + m},
+```
+
+where ``K_i`` is the half-saturation constant of substrate uptake (common to the three substrates), ``K_R`` is the half-saturation constant of protein synthesis, and ``k = 1`` in both examples below, so that the functions saturate at 1. Non-negativity constraints on the states are also added to help the solver.
+
 ```@example diauxic
 # Define uptake functions
 wm1(s) = k*s/(Kᵢ + s)
@@ -16,7 +28,7 @@ wm2(s) = k*s/(Kᵢ + s)
 wm3(s) = k*s/(Kᵢ + s)
 wR(m) = k * m / (KR + m)
 
-function diauxic_ocp(t₀, tf, I₀, Y₁, Y₂, Y₃)
+function diauxic_ocp(t₀, tf, I₀, Y₁, Y₂, Y₃; scale = 1, tol = 1e-12)
     ocp = @def begin
         # time interval
         t ∈ [t₀, tf], time
@@ -40,14 +52,14 @@ function diauxic_ocp(t₀, tf, I₀, Y₁, Y₂, Y₃)
               + Y₃*u₃(t)*wm3(s₃(t)) - u₀(t)*wR(m(t))*(m(t)+1),                                 
               u₀(t)*wR(m(t)) * x(t)            
         ]
-        x(tf) → max     # Maximize final biomass
+        scale * x(tf) → max     # Maximize final biomass
     end 
     
     sol = solve(
         ocp, :collocation, :adnlp, :ipopt;
         scheme = :gauss_legendre_3,
         grid_size   = 1000,       
-        tol         = 1e-8,
+        tol         = tol,
         display     = false
         )
 
@@ -55,6 +67,10 @@ function diauxic_ocp(t₀, tf, I₀, Y₁, Y₂, Y₃)
 end
 nothing # hide
 ```
+
+## First example: substrate-abundant case
+
+In the substrate-abundant case, the substrates in the medium are initially abundant with respect to the intermediate metabolites in the cells, so that investing in metabolism is initially more profitable than investing in growth. We consider three substrates with decreasing yields Y₁ > Y₂ > Y₃ and initial conditions satisfying ``Y_1 w_1(s_{10}) > Y_2 w_2(s_{20}) > Y_3 w_3(s_{30})``, so that the substrate with the highest yield is the most profitable one at the beginning of the process. The initial amount of intermediate metabolites is small, so the cell is expected to first invest all its resources in metabolism. This corresponds to the first general trajectory presented in [Yabo (2025)](https://doi.org/10.1016/j.automatica.2024.111881).
 
 ```@example diauxic
 # Initial conditions and time horizon
@@ -74,47 +90,41 @@ nothing # hide
 sol # hide
 ```
 
-## Switching Time Analysis
+### Switching times
 
-```@example diauxic
+According to the theoretical analysis of [Yabo (2025)](https://doi.org/10.1016/j.automatica.2024.111881), the optimal solution is a concatenation of three types of arcs, characterized by the value of u₀:
+
+- **pure-metabolism arcs** (u₀ = 0), where all resources are allocated to the metabolic machinery and biomass is not produced;
+- **pure-growth arcs** (u₀ = 1), where all resources are allocated to ribosomes, and substrate uptake is arrested;
+- **singular arcs** (0 < u₀ < 1), where resources are shared between metabolism and growth.
+
+Moreover, along the singular arc, the *i*-th substrate starts being consumed when ``Y_i w_i(s_i)`` reaches the maximum of these functions over the substrates already being consumed. These switching times are detected numerically from the optimal solution and displayed in the plots below.
+
+```@setup diauxic
 function calculate_switching_times(sol, Y₁, Y₂, Y₃)
   
     arc1, arc2, arcr1, arcr2 = nothing, nothing, nothing, nothing
     
     try 
         t = time_grid(sol)
-        z = state(sol)
         u = control(sol)
     
         # Evaluate controls at time points
         u0_vals = [u(t)[1] for t in t]
-        # Get state values at each time point
-        s1_vals = [z(ti)[1] for ti in t]
-        s2_vals = [z(ti)[2] for ti in t]
-        s3_vals = [z(ti)[3] for ti in t]
         
-        # Evaluate the Michaelis-Menten functions
-        wm1_vals = [wm1(s1) for s1 in s1_vals]
-        wm2_vals = [wm2(s2) for s2 in s2_vals]
-        wm3_vals = [wm3(s3) for s3 in s3_vals]
-        
-        # Determine tolerance based on parameter values
+        # Beginning and end of the singular arc
         if Y₁ ≈ 1.0 && Y₂ ≈ 0.3 && Y₃ ≈ 0.1
-            tol1 = 0.2e-5
-            tol2 = 0.3e-6
             arcr1_idx = findfirst(u0_vals .< 0.9)
             arcr2_idx = findlast(u0_vals .< 0.9)
-
         else
-            tol1 = 1e-3
-            tol2 = 1e-3
             arcr1_idx = findfirst(u0_vals .> 0.1)
             arcr2_idx = findfirst(u0_vals .> 0.5)
         end
         
-        # Find switching times
-        arc1_idx = findfirst((Y₁ .* wm1_vals .- Y₂ .* wm2_vals).^2 .< tol1)
-        arc2_idx = findfirst((Y₂ .* wm2_vals .- Y₃ .* wm3_vals).^2 .< tol2)
+        # Activation of u₂ and u₃: first time each control exceeds a small threshold
+        ε = 0.05
+        arc1_idx = findfirst(ti -> u(ti)[3] > ε, t)
+        arc2_idx = findfirst(ti -> u(ti)[4] > ε, t)
 
         if arc1_idx !== nothing
             arc1 = t[arc1_idx]
@@ -142,7 +152,9 @@ end
 arc1, arc2, arcr1, arcr2 = calculate_switching_times(sol, Y₁, Y₂, Y₃)
 ```
 
-## State Variable Visualization
+### States
+
+We now plot the optimal state trajectories. In all plots, the shaded regions at the beginning and at the end of the time interval correspond to the non-singular arcs, and the dashed vertical lines indicate the instants at which s₂ and s₃ start being consumed.
 
 ```@example diauxic
 function plot_state_variables(sol, t₀, tf, arc1, arc2, arcr1, arcr2)    
@@ -232,15 +244,21 @@ nothing # hide
 substrates_plot
 ```
 
+The substrates are consumed sequentially, starting from the one with the highest yield, which is the diauxic behaviour described in the [home page](index.md).
+
 ```@example diauxic
 metabolites_plot
 ```
+
+The intermediate metabolites first accumulate during the initial pure-metabolism arc, are kept at a regulated level along the singular arc, and are finally converted into biomass during the final pure-growth arc.
 
 ```@example diauxic
 biomass_plot
 ```
 
-## Control Analysis
+### Controls
+
+The optimal controls are plotted stacked on top of each other, so that the total height of the colored area is u₀ + u₁ + u₂ + u₃ = 1, as all the available resources are used along the optimal solution. The fraction allocated to ribosomes u₀ is zero along the initial pure-metabolism arc, takes intermediate values along the singular arc, and is equal to one along the final pure-growth arc. Meanwhile, the metabolic controls u₁, u₂ and u₃ are activated one after the other, at the switching times computed above.
 
 ```@example diauxic
 function plot_controls(sol, t₀, tf; arc1=nothing, arc2=nothing, arcr1=arcr1, arcr2=arcr2)
@@ -308,7 +326,9 @@ end
 control_plot = plot_controls(sol, t₀, tf; arc1=arc1, arc2=arc2, arcr1=arcr1, arcr2=arcr2)
 ```
 
-New parameter set for sensitivity analysis
+## Second example: metabolite-abundant case
+
+In the metabolite-abundant case, the situation is reversed: the intermediate metabolites are initially abundant with respect to the substrates, so that investing in growth is initially more profitable than investing in metabolism. We now consider three substrates with the same initial concentration and a high initial amount of intermediate metabolites m₀. In this situation, the cell is expected to first invest all its resources in growth, in order to convert the available metabolites into biomass, which produces an initial pure-growth arc. A larger pool of metabolites also increases the duration of the final pure-growth arc. This corresponds to the second general trajectory presented in [Yabo (2025)](https://doi.org/10.1016/j.automatica.2024.111881). Since the substrate concentrations are an order of magnitude smaller than in the first example, the objective is very flat with respect to the activation times of the controls; we thus scale the objective to improve the numerical conditioning of the problem.
 
 ```@example diauxic
 k, KR, Kᵢ = 1, 0.3, 0.015
@@ -320,7 +340,7 @@ t₀, tf = 0, 5
 I₀_new = [s₁₀, s₂₀, s₃₀, m₀, x₀]
 
 # Solve with new parameters
-sol2 = diauxic_ocp(t₀, tf, I₀_new, Y₁, Y₂, Y₃)
+sol2 = diauxic_ocp(t₀, tf, I₀_new, Y₁, Y₂, Y₃; scale = 1e4)
 nothing # hide
 ```
 
@@ -328,7 +348,7 @@ nothing # hide
 sol2 # hide
 ```
 
-```@example diauxic
+```@setup diauxic
 # Calculate switching times for the new parameter set
 arc1_new, arc2_new, arcr1_new, arcr2_new = calculate_switching_times(sol2, Y₁, Y₂, Y₃)
 ```
@@ -349,11 +369,3 @@ metabolites_plot_bis
 ```@example diauxic
 biomass_plot_bis
 ```
-
-## References
-
-The mathematical models and optimal control strategies implemented in this documentation are based on the following research:
-
-1. **Yabo, A. G.** (2023). Predicting microbial cell composition and diauxic growth as optimal control strategies. *IFAC-PapersOnLine*, 56(2), 6217-6222. [https://doi.org/10.1016/j.ifacol.2023.10.745.](https://www.sciencedirect.com/science/article/pii/S2405896323011229)
-
-2. **Yabo, A. G.** (2025). Optimal control strategies in a generic class of bacterial growth models with multiple substrates. *Automatica*, 171, 111881. [https://doi.org/10.1016/j.automatica.2024.111881](https://doi.org/10.1016/j.automatica.2024.111881)
