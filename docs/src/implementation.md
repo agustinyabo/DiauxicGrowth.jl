@@ -173,6 +173,7 @@ function plot_state_variables(sol, t₀, tf, arc1, arc2, arcr1, arcr2)
         bottom_margin = 10mm,
         foreground_color_subplot = :black, 
         xlabel = "t",
+        xlims = (t₀, tf),
         ylabel = "Extracellular quantities"
     )
     plot!(substrates_plot,
@@ -203,6 +204,7 @@ function plot_state_variables(sol, t₀, tf, arc1, arc2, arcr1, arcr2)
         bottom_margin = 10mm,
         foreground_color_subplot = :black, 
         xlabel = "t",
+        xlims = (t₀, tf),
         ylabel = "metabolite"
     )
     vline!(metabolites_plot, [arc1], color=:grey, linestyle=:dash, linewidth=5, label="")
@@ -224,6 +226,7 @@ function plot_state_variables(sol, t₀, tf, arc1, arc2, arcr1, arcr2)
         bottom_margin = 10mm,
         foreground_color_subplot = :black, 
         xlabel = "t",
+        xlims = (t₀, tf),
         yformatter = :plain,
         ylabel = "biomass"
     )
