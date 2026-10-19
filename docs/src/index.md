@@ -3,7 +3,7 @@
 When bacteria grow in an environment containing several carbon sources, they may not consume them simultaneously. Instead, they first use the preferred substrate and only switch to the next one once the first is depleted. This sequential behaviour, first described by Jacques Monod in the 1940s with *Escherichia coli* growing on glucose and lactose, is known as **diauxic growth**.
 
 ```@raw html
-<img src="assets/data.png" alt="Diauxic growth data" style="display: block; margin: auto; width: 60%;">
+<img src="assets/data.png" alt="Diauxic growth data" style="display: block; margin: auto; width: 50%;">
 ```
 
 Experimental data of *E. coli* exhibiting diauxic growth on glucose and lactose [^2]. Figure adapted from [^1].
@@ -30,7 +30,15 @@ The function wᵢ(sᵢ) is the uptake rate of the *i*-th substrate, which is con
 
 ### Optimal control formulation
 
-Following the resource allocation viewpoint, the proteins of the cell involved in growth are split between the metabolic machinery (enzymes responsible for substrate uptake and metabolite synthesis) and the gene expression machinery (ribosomes responsible for protein synthesis). This distribution is modelled through control variables: u₀(t) is the fraction allocated to ribosomes, while uᵢ(t), for i = 1, …, n, is the fraction allocated to the enzymes metabolizing the *i*-th substrate. Since all these proteins come from the same limited pool, the controls satisfy:
+Following the resource allocation viewpoint, the proteins of the cell involved in growth are split between the metabolic machinery (enzymes responsible for substrate uptake and metabolite synthesis) and the gene expression machinery (ribosomes responsible for protein synthesis). This distribution is modelled through control variables: u₀(t) is the fraction allocated to ribosomes, while uᵢ(t), for i = 1, …, n, is the fraction allocated to the enzymes metabolizing the *i*-th substrate.
+
+```@raw html
+<img src="assets/scheme.png" alt="Scheme of the resource allocation model" style="display: block; margin: auto; width: 60%;">
+```
+
+Scheme of the resource allocation model. Each external substrate sᵢ is metabolized into intermediate metabolites, which are then used to synthesize proteins. Metabolic proteins catalyze the uptake of nutrients (upper dotted line), while ribosomes catalyze the synthesis of proteins (lower dotted line). Figure taken from [^4].
+
+Since all these proteins come from the same limited pool, the controls satisfy:
 
 ```math
 \begin{aligned}
@@ -48,12 +56,6 @@ The controlled model then reads:
 \dot{\mathcal{x}} = u_0 w_R(m)\mathcal{x}
 \end{cases} \tag{S}
 ```
-
-```@raw html
-<img src="assets/scheme.png" alt="Scheme of the resource allocation model" style="display: block; margin: auto; width: 60%;">
-```
-
-Scheme of the resource allocation model. Each external substrate sᵢ is metabolized into intermediate metabolites, which are then used to synthesize proteins. Metabolic proteins catalyze the uptake of nutrients (upper dotted line), while ribosomes catalyze the synthesis of proteins (lower dotted line). Figure taken from [^4].
 
 The set of non-negative states is positively invariant for system (S), and thus we set the initial conditions as:
 
@@ -80,8 +82,6 @@ where the set of admissible controls 𝒰 is the set of measurable functions ``u
 & u_0(t) + u_1(t) + u_2(t) + u_3(t) \leq 1.
 \end{aligned}
 ```
-
-## References
 
 [^1]: **Kremling, A., Geiselmann, J., Ropers, D., & de Jong, H.** (2018). An ensemble of mathematical models showing diauxic growth behaviour. *BMC Systems Biology*, 12, 82. [https://doi.org/10.1186/s12918-018-0604-8](https://doi.org/10.1186/s12918-018-0604-8)
 
