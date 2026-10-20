@@ -33,7 +33,7 @@ makedocs(;
     format = Documenter.HTML(;
         repolink = "https://" * repo_url,
         prettyurls = false,
-        size_threshold_ignore = ["index.md", "implementation.md"],
+        size_threshold_ignore = ["index.md", "implementation.md", "calibration.md"],
         example_size_threshold = nothing,
         assets = [
             asset("https://control-toolbox.org/assets/css/documentation.css"),
@@ -42,7 +42,8 @@ makedocs(;
     ),
     pages = [
         "Introduction" => "index.md",
-        "Implementation and Results" => "implementation.md",
+        "Implementation and results" => "implementation.md",
+        "Application to experimental data" => "calibration.md",
     ],
 )
 

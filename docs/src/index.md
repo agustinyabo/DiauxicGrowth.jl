@@ -149,3 +149,7 @@ Pkg.status(; mode = PKGMODE_MANIFEST) # hide
 ```@raw html
 </details>
 ```
+
+---
+
+*Authors: [Ousmane-Junior Sane](https://github.com/Ousmane-prog) and [Agustin G. Yabo](http://www.agustinyabo.com.ar)*

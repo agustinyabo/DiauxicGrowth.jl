@@ -2,7 +2,7 @@
 
 julia_version = "1.13.2"
 manifest_format = "2.1"
-project_hash = "49c2ca498fef72607674b19c3c4ed8579d0fa14e"
+project_hash = "c5f3d5e4655bcd64fb86d457a7d3550d9bea2733"
 
 [[deps.ADNLPModels]]
 deps = ["ADTypes", "DifferentiationInterface", "ForwardDiff", "LinearAlgebra", "NLPModels", "ReverseDiff", "SparseArrays", "SparseConnectivityTracer", "SparseMatrixColorings"]
@@ -596,7 +596,7 @@ version = "1.9.1"
 [[deps.DiauxicGrowth]]
 path = ".."
 uuid = "b82fc4fa-8f9b-4f7f-a83e-a6a8d5cca84c"
-version = "0.2.0"
+version = "0.2.2"
 
 [[deps.DiffEqBase]]
 deps = ["ArrayInterface", "BracketingNonlinearSolve", "ConcreteStructs", "DocStringExtensions", "FastBroadcast", "FastClosures", "FastPower", "FunctionWrappers", "FunctionWrappersWrappers", "LinearAlgebra", "Logging", "Markdown", "MuladdMacro", "PrecompileTools", "Printf", "RecursiveArrayTools", "Reexport", "SciMLBase", "SciMLLogging", "SciMLOperators", "SciMLStructures", "Setfield", "Static", "StaticArraysCore", "SymbolicIndexingInterface", "TruncatedStacktraces"]
@@ -661,14 +661,11 @@ git-tree-sha1 = "bd078194af24a5674a6bad822669f9489d6b8c10"
 registries = "General"
 uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
 version = "5.32.0"
+weakdeps = ["Optim", "ReverseDiff"]
 
     [deps.DiffEqNoiseProcess.extensions]
     DiffEqNoiseProcessOptimExt = "Optim"
     DiffEqNoiseProcessReverseDiffExt = "ReverseDiff"
-
-    [deps.DiffEqNoiseProcess.weakdeps]
-    Optim = "429524aa-4258-5aef-a3af-852621145aeb"
-    ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 
 [[deps.DiffResults]]
 deps = ["StaticArraysCore"]
@@ -2029,6 +2026,19 @@ registries = "General"
 uuid = "efe28fd5-8261-553b-a9e1-b2916fc3738e"
 version = "0.5.6+0"
 
+[[deps.Optim]]
+deps = ["ADTypes", "EnumX", "FillArrays", "LineSearches", "LinearAlgebra", "NLSolversBase", "NaNMath", "PositiveFactorizations", "Printf", "SparseArrays", "Statistics"]
+git-tree-sha1 = "81f338ad984b25bc82471db4d235e7b8bf21b8d6"
+registries = "General"
+uuid = "429524aa-4258-5aef-a3af-852621145aeb"
+version = "2.3.2"
+
+    [deps.Optim.extensions]
+    OptimMOIExt = "MathOptInterface"
+
+    [deps.Optim.weakdeps]
+    MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
+
 [[deps.OptimalControl]]
 deps = ["ADNLPModels", "CTBase", "CTDirect", "CTFlows", "CTModels", "CTParser", "CTSolvers", "CommonSolve", "DocStringExtensions", "Documenter", "ExaModels", "LinearAlgebra", "NLPModels", "RecipesBase", "Reexport", "SolverCore"]
 git-tree-sha1 = "06268804d2bbcb4ec49c989c6db81475a323eb19"
@@ -2417,6 +2427,13 @@ git-tree-sha1 = "645bed98cd47f72f67316fd42fc47dee771aefcd"
 registries = "General"
 uuid = "1d0040c9-8b98-4ee7-8388-3f51789ca0ad"
 version = "0.2.2"
+
+[[deps.PositiveFactorizations]]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "17275485f373e6673f7e7f97051f703ed5b15b20"
+registries = "General"
+uuid = "85a6dd25-e78a-55b7-8502-1745935b8125"
+version = "0.2.4"
 
 [[deps.PreallocationTools]]
 deps = ["Adapt", "ArrayInterface", "PrecompileTools", "SciMLPublic"]
